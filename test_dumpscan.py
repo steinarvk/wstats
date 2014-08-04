@@ -24,7 +24,8 @@ def test_sample_frequent_contributors():
     ])
     counter = Counter()
     for revision in parse_revisions(SampleFilename):
-        counter[revision.contributor.username] += 1
+        if revision.contributor.username:
+            counter[revision.contributor.username] += 1
     most_common = set(counter.most_common(3))
     assert most_common == expected_most_common
 
