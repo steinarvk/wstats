@@ -116,6 +116,8 @@ class PageTagHandler (SaxHandlerStack):
             "title": self.value_handler(),
             "ns": self.value_handler(int),
             "id": self.value_handler(int),
+            "redirect": IgnoreHandler,
+            "restrictions": IgnoreHandler,
         }
 
     def value_handler(self, *args, **kwargs):
