@@ -36,12 +36,51 @@ class User (object):
     def __init__(self):
         self.username = None
         self.id = None
+        self.ip = None
+
+class Text (object):
+    def __init__(self):
+        self.id = None
+        self.bytes = None
 
 def parse_datetime(s):
     """Parse a timestamp string in ISO 8601, returning an UTC datetime."""
     dt = dateutil.parser.parse(s)
     timestamp = time.mktime(dt.utctimetuple())
     return datetime.datetime.fromtimestamp(timestamp)
+
+class TextTagHandler (SaxHandlerStack):
+    def __init__(self, name, parent, attrs):
+        SaxHandlerStack.__init__(self, name, parent)
+        self.text = Text()
+        try:
+            self.text.id = int(attrs["id"])
+        except KeyError:
+            pass
+        try:
+            self.text.bytes = int(attrs["bytes"])
+        except KeyError:
+            pass
+
+    def stop(self):
+        self.parent.revision.text = self.text
+
+class ContributorTagHandler (SaxHandlerStack):
+    def __init__(self, name, parent, attrs):
+        SaxHandlerStack.__init__(self, name, parent)
+        self.user = User()
+        self.handler_factories = {
+            "username": self.value_handler(),
+            "id": self.value_handler(int),
+            "ip": self.value_handler(),
+        }
+
+    def value_handler(self, *args, **kwargs):
+        make = saxhandlers.create_value_element_handler
+        return make(self.user, *args, **kwargs)
+
+    def stop(self):
+        self.parent.revision.contributor = self.user
 
 class RevisionTagHandler (SaxHandlerStack):
     def __init__(self, name, parent, attrs):
@@ -55,9 +94,9 @@ class RevisionTagHandler (SaxHandlerStack):
             "model": self.value_handler(),
             "format": self.value_handler(),
             "parentid": self.value_handler(int),
-            "minor": IgnoreHandler,
-            "text": IgnoreHandler,
-            "contributor": IgnoreHandler,
+            "minor": IgnoreHandler, # TODO
+            "text": TextTagHandler,
+            "contributor": ContributorTagHandler,
             "timestamp": self.value_handler(parse_datetime),
         }
 
