@@ -2,6 +2,10 @@ import xml.sax
 import gzip
 import codecs
 
+import dateutil.parser
+import datetime
+import time
+
 from collections import defaultdict, deque
 
 import saxhandlers
@@ -33,6 +37,12 @@ class User (object):
         self.username = None
         self.id = None
 
+def parse_datetime(s):
+    """Parse a timestamp string in ISO 8601, returning an UTC datetime."""
+    dt = dateutil.parser.parse(s)
+    timestamp = time.mktime(dt.utctimetuple())
+    return datetime.datetime.fromtimestamp(timestamp)
+
 class RevisionTagHandler (SaxHandlerStack):
     def __init__(self, name, parent, attrs):
         SaxHandlerStack.__init__(self, name, parent)
@@ -48,7 +58,7 @@ class RevisionTagHandler (SaxHandlerStack):
             "minor": IgnoreHandler,
             "text": IgnoreHandler,
             "contributor": IgnoreHandler,
-            "timestamp": IgnoreHandler
+            "timestamp": self.value_handler(parse_datetime),
         }
 
     def value_handler(self, *args, **kwargs):

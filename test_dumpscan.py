@@ -43,3 +43,22 @@ def test_sample_revision_attributes():
     assert revision.sha1 == "bgr2ap3ri2abor362xau00k4nasfqtj"
     assert revision.model == "wikitext"
     assert revision.format == "text/x-wiki"
+
+def test_parse_datetime():
+    rv = parse_datetime("2003-12-20T12:04:34Z")
+    assert rv.year == 2003
+    assert rv.month == 12
+    assert rv.day == 20
+    assert rv.hour == 12
+    assert rv.minute == 4
+    assert rv.second == 34
+    
+def test_parse_offset_datetime():
+    rv = parse_datetime("2003-12-20T12:04:34+01:00")
+    assert rv.year == 2003
+    assert rv.month == 12
+    assert rv.day == 20
+    assert rv.hour == 11
+    assert rv.minute == 4
+    assert rv.second == 34
+    
