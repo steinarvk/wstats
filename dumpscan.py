@@ -161,6 +161,12 @@ def parse_revisions(filename):
 if __name__ == '__main__':
     import sys
     filename = sys.argv[1]
+    fmt = "%Y-%m-%d %H:%M:%S UTC"
     for revision in parse_revisions(filename):
-        args = revision.id, revision.page.title
-        print "revision #{} of page '{}'".format(*args)
+        args = {
+            "t": revision.timestamp.strftime(fmt),
+            "r": revision.id,
+            "p": revision.page.title,
+            "u": revision.contributor.username,
+        }
+        print u"[{t}] revision #{r} of page '{p}' by {u}".format(**args)
