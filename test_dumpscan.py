@@ -2,6 +2,9 @@ from dumpscan import *
 
 SampleFilename = "sample/svwiki-20140727-stub-meta-history.sample.xml.gz"
 
+def test_sample_revision_count():
+    assert 160 == len(list(parse_revisions(SampleFilename)))
+
 def test_sample_page_titles():
     expected_titles = set([
         "Amager",
